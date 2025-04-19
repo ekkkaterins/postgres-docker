@@ -1,0 +1,54 @@
+CREATE DATABASE IF NOT EXISTS academy;
+CREATE TABLE IF NOT EXISTS Courses (
+    c_no SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    hours INT
+);
+ CREATE TABLE IF NOT EXISTS Students (
+    s_id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    start_year INT
+);
+
+CREATE TABLE IF NOT EXISTS Exams (
+
+    s_id INT REFERENCES Students(s_id) ON DELETE CASCADE,
+    c_no INT REFERENCES Courses(c_no) ON DELETE CASCADE,
+    score INT NOT NULL
+);
+INSERT INTO Courses (title, hours) VALUES
+    ('Math', 160),
+    ('English', 200);
+INSERT INTO Students (name, start_year) VALUES
+    ('Kate', 2020),
+    ('Jack', 2022), 
+    ('Bob', 2021);
+INSERT INTO Exams (s_id, c_no, score) VALUES
+    (1,1,99),
+    (1,2,55),
+    (2,1,67),
+    (2,2,0),
+    (3,1,0),
+    (3,2,0);
+
+ SELECT s.*
+FROM Students s
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Exams e
+    WHERE e.s_id = s.s_id AND e.score > 0
+);
+
+ SELECT s.s_id, s.name, COUNT(e.*) AS passed_exams
+FROM Students s
+JOIN Exams e ON s.s_id = e.s_id
+WHERE e.score > 0
+GROUP BY s.s_id, s.name;
+
+
+ SELECT s.s_id, AVG(e.score) AS avg_score
+FROM Students s
+JOIN Exams e ON s.s_id = e.s_id
+WHERE e.score > 0
+GROUP BY s.s_id
+ORDER BY avg_score DESC;
